@@ -87,7 +87,13 @@ class Global < Formula
       EOS
     end
     if build.with? "pygments"
+      ohai shell_output("rm -f GTAGS GRTAGS GPATH")
+      ohai shell_output("ls -l")
       assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=pygments .")
+      ohai shell_output("ls -l")
+      ohai shell_output("gtags -d GTAGS")
+      ohai shell_output("gtags -d GRTAGS")
+      ohai shell_output("gtags -d GPATH")
       if build.with? "ctags"
         assert_match "test.c", shell_output("#{bin}/global -d cfunc")
         assert_match "test.c", shell_output("#{bin}/global -d c2func")
@@ -105,7 +111,13 @@ class Global < Formula
       assert_match "test.py", shell_output("#{bin}/global -s pyvar")
     end
     if build.with? "ctags"
+      ohai shell_output("rm -f GTAGS GRTAGS GPATH")
+      ohai shell_output("ls -l")
       assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=exuberant-ctags .")
+      ohai shell_output("ls -l")
+      ohai shell_output("gtags -d GTAGS")
+      ohai shell_output("gtags -d GRTAGS")
+      ohai shell_output("gtags -d GPATH")
       # ctags only yields definitions
       assert_match "test.c", shell_output("#{bin}/global -d cfunc   # passes")
       assert_match "test.c", shell_output("#{bin}/global -d c2func  # passes")
@@ -117,14 +129,26 @@ class Global < Formula
       assert_no_match(/test\.py/, shell_output("#{bin}/global -s pyvar   # correctly fails"))
     end
     if build.with? "sqlite3"
+      ohai shell_output("rm -f GTAGS GRTAGS GPATH")
+      ohai shell_output("ls -l")
       assert shell_output("#{bin}/gtags --sqlite3 --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=default .")
+      ohai shell_output("ls -l")
+      ohai shell_output("gtags -d GTAGS")
+      ohai shell_output("gtags -d GRTAGS")
+      ohai shell_output("gtags -d GPATH")
       assert_match "test.c", shell_output("#{bin}/global -d cfunc")
       assert_match "test.c", shell_output("#{bin}/global -d c2func")
       assert_match "test.c", shell_output("#{bin}/global -r c2func")
       assert_match "test.c", shell_output("#{bin}/global -s cvar")
     end
     # C should work with default parser for any build
+    ohai shell_output("rm -f GTAGS GRTAGS GPATH")
+    ohai shell_output("ls -l")
     assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=default .")
+    ohai shell_output("ls -l")
+    ohai shell_output("gtags -d GTAGS")
+    ohai shell_output("gtags -d GRTAGS")
+    ohai shell_output("gtags -d GPATH")
     assert_match "test.c", shell_output("#{bin}/global -d cfunc")
     assert_match "test.c", shell_output("#{bin}/global -d c2func")
     assert_match "test.c", shell_output("#{bin}/global -r c2func")
