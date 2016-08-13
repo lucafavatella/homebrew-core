@@ -51,6 +51,8 @@ class Global < Formula
 
     if build.with? "ctags"
       args << "--with-exuberant-ctags=#{Formula["ctags"].opt_bin}/ctags"
+    elsif build.with? "universal-ctags"
+      args << "--with-exuberant-ctags=#{Formula["universal-ctags"].opt_bin}/ctags" ## HACK: GNU GLOBAL integrates pygments with `EXUBERANT_CTAGS`, it does not yet with `UNIVERSAL_CTAGS`. See GNU GLOBAL's `gtags.conf.in` and `pygments_parser.py`.
     end
     if build.with? "universal-ctags"
       args << "--with-universal-ctags=#{Formula["universal-ctags"].opt_bin}/ctags"
@@ -92,7 +94,7 @@ class Global < Formula
     end
     if build.with? "pygments"
       assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=pygments .")
-      if build.with? "ctags"
+      if build.with?("ctags") || build.with?("universal-ctags")
         assert_match "test.c", shell_output("#{bin}/global -d cfunc")
         assert_match "test.c", shell_output("#{bin}/global -d c2func")
         assert_match "test.c", shell_output("#{bin}/global -r c2func")
