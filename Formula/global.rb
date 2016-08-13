@@ -29,6 +29,7 @@ class Global < Formula
   deprecated_option "with-exuberant-ctags" => "with-ctags"
 
   depends_on "ctags" => :optional
+  depends_on "universal-ctags" => :optional
 
   skip_clean "lib/gtags"
 
@@ -50,6 +51,9 @@ class Global < Formula
 
     if build.with? "ctags"
       args << "--with-exuberant-ctags=#{Formula["ctags"].opt_bin}/ctags"
+    end
+    if build.with? "universal-ctags"
+      args << "--with-universal-ctags=#{Formula["universal-ctags"].opt_bin}/ctags"
     end
 
     if build.with? "pygments"
@@ -78,7 +82,7 @@ class Global < Formula
        int c2func (void) { return 0; }
        void cfunc (void) {int cvar = c2func(); }")
     EOS
-    if build.with?("pygments") || build.with?("ctags")
+    if build.with?("pygments") || build.with?("ctags") || build.with?("universal-ctags")
       (testpath/"test.py").write <<-EOS
         def py2func ():
              return 0
@@ -107,6 +111,17 @@ class Global < Formula
     if build.with? "ctags"
       assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=exuberant-ctags .")
       # ctags only yields definitions
+      assert_match "test.c", shell_output("#{bin}/global -d cfunc   # passes")
+      assert_match "test.c", shell_output("#{bin}/global -d c2func  # passes")
+      assert_match "test.py", shell_output("#{bin}/global -d pyfunc  # passes")
+      assert_match "test.py", shell_output("#{bin}/global -d py2func # passes")
+      assert_no_match(/test\.c/, shell_output("#{bin}/global -r c2func  # correctly fails"))
+      assert_no_match(/test\.c/, shell_output("#{bin}/global -s cvar    # correctly fails"))
+      assert_no_match(/test\.py/, shell_output("#{bin}/global -r py2func # correctly fails"))
+      assert_no_match(/test\.py/, shell_output("#{bin}/global -s pyvar   # correctly fails"))
+    end
+    if build.with? "universal-ctags"
+      assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=universal-ctags .")
       assert_match "test.c", shell_output("#{bin}/global -d cfunc   # passes")
       assert_match "test.c", shell_output("#{bin}/global -d c2func  # passes")
       assert_match "test.py", shell_output("#{bin}/global -d pyfunc  # passes")
