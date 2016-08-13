@@ -52,8 +52,20 @@ class Global < Formula
 
     args << "--with-sqlite3" if build.with? "sqlite3"
 
+    if build.with?("ctags") && build.with?("universal-ctags")
+      odie "Options --with-ctags and --with-universal-ctags are mutually exclusive."
+    end
+
     if build.with? "ctags"
       args << "--with-exuberant-ctags=#{Formula["ctags"].opt_bin}/ctags"
+    elsif build.with? "universal-ctags"
+      # HACK: Instruct the GNU GLOBAL build system to pass Universal
+      # Ctags as if it were Exuberant Ctags to the GNU GLOBAL's Python
+      # script integrating pygments with *-ctags, as such script
+      # supports only exuberant-ctags (refs
+      # [1](https://cvs.savannah.gnu.org/viewvc/global/global/plugin-factory/pygments_parser.py.in?view=markup&pathrev=VERSION-6_6_2#L30)
+      # [2](https://cvs.savannah.gnu.org/viewvc/global/global/plugin-factory/pygments_parser.py.in?view=markup&pathrev=VERSION-6_6_2#L200-L207)).
+      args << "--with-exuberant-ctags=#{Formula["universal-ctags"].opt_bin}/ctags" # HACK
     end
 
     if build.with? "universal-ctags"
@@ -96,7 +108,7 @@ class Global < Formula
     end
     if build.with? "pygments"
       assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=pygments .")
-      if build.with? "ctags"
+      if build.with?("ctags") || build.with?("universal-ctags")
         assert_match "test.c", shell_output("#{bin}/global -d cfunc")
         assert_match "test.c", shell_output("#{bin}/global -d c2func")
         assert_match "test.c", shell_output("#{bin}/global -r c2func")
