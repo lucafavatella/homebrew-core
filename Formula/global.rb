@@ -96,7 +96,7 @@ class Global < Formula
     end
     if build.with? "pygments"
       assert shell_output("#{bin}/gtags --gtagsconf=#{share}/gtags/gtags.conf --gtagslabel=pygments .")
-      if build.with?("ctags") || build.with?("universal-ctags")
+      if build.with? "ctags"
         assert_match "test.c", shell_output("#{bin}/global -d cfunc")
         assert_match "test.c", shell_output("#{bin}/global -d c2func")
         assert_match "test.c", shell_output("#{bin}/global -r c2func")
